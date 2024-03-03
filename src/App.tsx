@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import styles from './App.module.scss'
+import { CardSkeleton } from './components/CardSkeleton'
 import { RepoCard } from './components/RepoCard'
 import { Branch } from './types/branch'
 import { ErrorMessage } from './types/ErrorMessage'
@@ -147,6 +148,10 @@ export function App() {
             }
           />
         ))}
+
+        {isLoading &&
+          !repositories.length &&
+          Array.from(Array(5)).map((_, index) => <CardSkeleton key={index} />)}
       </section>
     </main>
   )

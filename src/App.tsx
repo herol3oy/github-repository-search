@@ -1,38 +1,59 @@
-import './App.css'
+import { useRef, useState } from 'react'
 
-import { useState } from 'react'
+import { Repository } from './types/repository'
 
-import viteLogo from '/vite.svg'
+export function App() {
+  const [repositories, setRepositories] = useState<Repository[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-import reactLogo from './assets/react.svg'
+  const inputRef = useRef<HTMLInputElement>(null)
 
-function App() {
-  const [count, setCount] = useState(0)
+  const handleUserInputChange = async () => {
+    const inputValue = inputRef.current?.value || ''
+
+    const hasInputLength = inputValue.trim().length
+
+    if (hasInputLength) {
+      const response = await fetch(
+        `https://api.github.com/users/${inputValue}/repos`,
+        {
+          headers: {
+            Authorization: `Bearer ${import.meta.env.VITE_APP_GITHUB_ACCESS_TOKEN}`,
+            'X-GitHub-Api-Version': '2022-11-28',
+          },
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error('error')
+      }
+
+      const repos: Repository[] = await response.json()
+
+      const ownedRepos = repos?.filter((repo) => !repo.fork) || []
+
+      setRepositories(ownedRepos)
+
+      setIsLoading(false)
+    } else {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main>
+      <section>
+        <pre>{JSON.stringify(isLoading, null, 2)}</pre>
+        <input
+          ref={inputRef}
+          onChange={handleUserInputChange}
+          placeholder="Type a username"
+          data-testid="seach-bar"
+        />
+      </section>
+      <section>
+        <pre>{JSON.stringify(repositories, null, 2)}</pre>
+      </section>
+    </main>
   )
 }
-
-export default App

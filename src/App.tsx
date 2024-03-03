@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import styles from './App.module.scss'
 import { CardSkeleton } from './components/CardSkeleton'
+import { DisplayError } from './components/DisplayError'
 import { RepoCard } from './components/RepoCard'
 import { Branch } from './types/branch'
 import { ErrorMessage } from './types/ErrorMessage'
@@ -16,7 +17,7 @@ export function App() {
   const [repositories, setRepositories] = useState<Repository[]>([])
   const [commits, setCommits] = useState<{ [key: string]: string }>({})
   const [branches, setBranches] = useState<{ [key: string]: Branch[] }>({})
-  const [, setErrorMessage] = useState<ErrorMessage | string>('')
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [debounceTimeout, setDebounceTimeout] = useState<number | null>(null)
 
@@ -137,6 +138,7 @@ export function App() {
         )}
       </section>
       <section className={styles.repoCardContainer}>
+        {errorMessage && <DisplayError message={errorMessage} />}
         {repositories.map((repo) => (
           <RepoCard
             key={repo.id}

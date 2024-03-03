@@ -1,0 +1,28 @@
+.errorMessage {
+  box-sizing: border-box;
+  display: flex;
+  place-items: center;
+  gap: 13px;
+  width: 624px;
+  height: 70px;
+  padding: 18px;
+  color: #f4e4e4;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 20px;
+  background-color: #c1121f;
+
+  @media screen and (width < 768px) {
+    width: 100%;
+  }
+}
+
+.crossIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #f4e4e4;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+}

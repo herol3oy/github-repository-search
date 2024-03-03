@@ -1,58 +1,152 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
+import styles from './App.module.scss'
+import { RepoCard } from './components/RepoCard'
+import { Branch } from './types/branch'
+import { ErrorMessage } from './types/ErrorMessage'
 import { Repository } from './types/repository'
+import { fetcher } from './utils/fetcher'
+import { githubConfig } from './utils/github-config'
+import { requestBranches } from './utils/request-branches'
+import { requestCommits } from './utils/request-commits'
 
 export function App() {
   const [repositories, setRepositories] = useState<Repository[]>([])
+  const [commits, setCommits] = useState<{ [key: string]: string }>({})
+  const [branches, setBranches] = useState<{ [key: string]: Branch[] }>({})
+  const [, setErrorMessage] = useState<ErrorMessage | string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [debounceTimeout, setDebounceTimeout] = useState<number | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const handleUserInputChange = async () => {
-    const inputValue = inputRef.current?.value || ''
+  const hasCurrentInput = !!inputRef?.current?.value
 
-    const hasInputLength = inputValue.trim().length
+  const [searchParams, setSearchParams] = useSearchParams()
 
-    if (hasInputLength) {
-      const response = await fetch(
-        `https://api.github.com/users/${inputValue}/repos`,
-        {
-          headers: {
-            Authorization: `Bearer ${import.meta.env.VITE_APP_GITHUB_ACCESS_TOKEN}`,
-            'X-GitHub-Api-Version': '2022-11-28',
-          },
-        },
-      )
+  useEffect(() => {
+    const innerEffect = async () => {
+      const query = searchParams.get('q')
 
-      if (!response.ok) {
-        throw new Error('error')
+      if (query && inputRef.current) {
+        setIsLoading(true)
+        inputRef.current.value = query
+
+        const repos = await fetcher<Repository[] | undefined>({
+          apiUrl: `https://api.github.com/users/${inputRef.current.value}/repos`,
+          options: githubConfig,
+          setError: setErrorMessage,
+          errorMessage: ErrorMessage.USER_NOT_FOUND,
+        })
+
+        const ownedRepositories =
+          repos?.filter((repo: Repository) => !repo.fork) || []
+
+        if (repos && !repos.length) {
+          setErrorMessage(ErrorMessage.USER_HAS_NO_REPOSITORY)
+        }
+        setRepositories(ownedRepositories)
+        setIsLoading(false)
       }
-
-      const repos: Repository[] = await response.json()
-
-      const ownedRepos = repos?.filter((repo) => !repo.fork) || []
-
-      setRepositories(ownedRepos)
-
-      setIsLoading(false)
-    } else {
-      setIsLoading(false)
     }
+
+    innerEffect()
+  }, [searchParams])
+
+  useEffect(() => {
+    repositories.length &&
+      repositories.forEach((repo) => {
+        requestCommits(repo, setErrorMessage, setCommits)
+      })
+  }, [repositories])
+
+  const handleClearUserInput = () => {
+    if (inputRef.current) {
+      inputRef.current.value = ''
+    }
+
+    setSearchParams('')
+    setErrorMessage('')
+    setRepositories([])
+  }
+
+  const handleUserInputChange = () => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout)
+    }
+
+    const newTimeout = setTimeout(async () => {
+      const inputValue = inputRef.current?.value || ''
+
+      setIsLoading(true)
+      setErrorMessage('')
+      setRepositories([])
+      setSearchParams({ q: inputValue }, { replace: true })
+
+      const hasInputLength = inputValue.trim().length
+
+      if (hasInputLength) {
+        const data = await fetcher<Repository[] | undefined>({
+          apiUrl: `https://api.github.com/users/${inputValue}/repos`,
+          options: githubConfig,
+          setError: setErrorMessage,
+          errorMessage: ErrorMessage.USER_NOT_FOUND,
+        })
+
+        const ownedRepos = data?.filter((repo) => !repo.fork) || []
+
+        setRepositories(ownedRepos)
+
+        if (!ownedRepos.length) {
+          setErrorMessage(ErrorMessage.USER_HAS_NO_REPOSITORY)
+        }
+
+        if (data === undefined) {
+          setErrorMessage(ErrorMessage.USER_NOT_FOUND)
+        }
+
+        setIsLoading(false)
+      } else {
+        setIsLoading(false)
+      }
+    }, 500)
+
+    setDebounceTimeout(newTimeout)
   }
 
   return (
-    <main>
-      <section>
-        <pre>{JSON.stringify(isLoading, null, 2)}</pre>
+    <main className={styles.app}>
+      <h1 className={styles.title}>Github Repository Search</h1>
+      <section className={styles.userInputContainer}>
         <input
+          className={styles.userInput}
           ref={inputRef}
           onChange={handleUserInputChange}
           placeholder="Type a username"
           data-testid="seach-bar"
         />
+
+        {isLoading && <span className={styles.loaderIcon}>&#8634;</span>}
+
+        {hasCurrentInput && !isLoading && (
+          <span className={styles.crossIcon} onClick={handleClearUserInput}>
+            &#10799;
+          </span>
+        )}
       </section>
-      <section>
-        <pre>{JSON.stringify(repositories, null, 2)}</pre>
+      <section className={styles.repoCardContainer}>
+        {repositories.map((repo) => (
+          <RepoCard
+            key={repo.id}
+            repo={repo}
+            commit={commits[repo.name]}
+            branches={branches[repo.name]}
+            displayBranches={() =>
+              requestBranches(repo, setErrorMessage, setBranches)
+            }
+          />
+        ))}
       </section>
     </main>
   )

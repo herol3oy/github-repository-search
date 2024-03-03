@@ -1,0 +1,76 @@
+.app {
+  display: flex;
+  margin: 54px auto 0;
+  max-width: 630px;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  margin-bottom: 20px;
+}
+
+.userInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 624px;
+  padding-bottom: 40px;
+
+  @media screen and (width < 768px) {
+    width: 100%;
+  }
+}
+
+.userInput {
+  width: inherit;
+  padding: 16px 24px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  outline: none;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 30px;
+  color: #141713;
+  box-shadow:
+    0 -6px 8px 0 #47434e05,
+    0 6px 12px 0 #47434e14;
+}
+
+.loaderIcon,
+.crossIcon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  right: 24px;
+  font-size: 26px;
+}
+
+.loaderIcon {
+  animation: spin 1s infinite linear;
+
+  @keyframes spin {
+    0% {
+      transform: rotate(360deg);
+    }
+
+    100% {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+.crossIcon {
+  cursor: pointer;
+}
+
+.repoCardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+
+  @media screen and (width < 768px) {
+    width: 100%;
+  }
+}

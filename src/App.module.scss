@@ -8,6 +8,8 @@
 
 .title {
   margin-bottom: 20px;
+  font-size: 28px;
+  color: var(--secondary-color);
 }
 
 .userInputContainer {
@@ -72,5 +74,23 @@
 
   @media screen and (width < 768px) {
     width: 100%;
+  }
+}
+
+.githubLogo {
+  height: 80px;
+  width: 80px;
+  animation: 5s ease 0s infinite normal none running up-and-down;
+
+  @keyframes up-and-down {
+    0% {
+      transform: translateY(-10%);
+    }
+    50% {
+      transform: translateY(10%);
+    }
+    100% {
+      transform: translateY(-10%);
+    }
   }
 }

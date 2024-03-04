@@ -23,6 +23,11 @@ export function RepoCard(props: RepoCardProps) {
     <div key={props.repo.id} className={styles.repoCard}>
       <div className={styles.header}>
         <div className={styles.nameContainer}>
+          <img
+            className={styles.githubLogo}
+            src="/github-mark-white.svg"
+            alt="github-log"
+          />
           <a
             className={styles.repoName}
             href={props.repo.html_url}

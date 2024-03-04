@@ -151,6 +151,14 @@ export function App() {
           />
         ))}
 
+        {!repositories.length && !errorMessage.length && !isLoading && (
+          <img
+            className={styles.githubLogo}
+            src="/github-mark-white.svg"
+            alt="github-logo"
+          />
+        )}
+
         {isLoading &&
           !repositories.length &&
           Array.from(Array(5)).map((_, index) => <CardSkeleton key={index} />)}

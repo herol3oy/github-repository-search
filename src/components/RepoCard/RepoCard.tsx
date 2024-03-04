@@ -44,8 +44,12 @@ export function RepoCard(props: RepoCardProps) {
       </small>
       <div onClick={toggleBranches} className={styles.branchesContainer}>
         <u>
-          {isVisible ? 'hide' : 'show'} branches{' '}
-          {isVisible ? <>&uarr;</> : <>&darr;</>}
+          {isVisible ? 'hide' : 'show'} branches
+          {isVisible ? (
+            <span className={styles.arrow}>&uarr;</span>
+          ) : (
+            <span className={styles.arrow}>&darr;</span>
+          )}
         </u>
       </div>
 

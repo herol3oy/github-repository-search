@@ -11,6 +11,10 @@
     #f6f7f8 100%
   );
 
+  @media screen and (width < 768px) {
+    width: 100%;
+  }
+
   @keyframes placeholder-shimmer {
     0% {
       background-position: -468px 0;

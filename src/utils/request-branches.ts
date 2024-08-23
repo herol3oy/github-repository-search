@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react'
 
 import { Branch } from '../types/branch'
-import { ErrorMessage } from '../types/ErrorMessage'
+import { ErrorMessage } from '../types/error-message'
 import { Repository } from '../types/repository'
 import { fetcher } from './fetcher'
 import { githubConfig } from './github-config'

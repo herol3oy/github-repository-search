@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from 'react'
 
-import { ErrorMessage } from '../types/ErrorMessage'
+import { ErrorMessage } from '../types/error-message'
 
 interface FetcherOptions {
   apiUrl: string

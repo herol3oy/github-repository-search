@@ -119,13 +119,13 @@ export function App() {
 
   return (
     <main className={styles.app}>
-      <h1 className={styles.title}>Github Repository Search</h1>
+      <h1 className={styles.title}>Repo Radar</h1>
       <section className={styles.userInputContainer}>
         <input
           className={styles.userInput}
           ref={inputRef}
           onChange={handleUserInputChange}
-          placeholder="Type a username"
+          placeholder="Type a Github username"
           data-testid="seach-bar"
         />
 
